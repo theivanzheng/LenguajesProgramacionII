@@ -26,6 +26,7 @@ struct listaPersonas {
 struct infoVentanilla{
     int numeroVentanilla;
     char operacion[20];
+    int personasAtendidas;
 };
 
 struct nodoVentanilla {
@@ -56,6 +57,8 @@ void ponerseCola(struct nodoVentanilla *primero, struct listaVentanillas *listaV
 void atender(struct nodoVentanilla *primero, struct listaVentanillas *listaVentanilla);
 void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *listaVentanilla);
 void mostrarAtendido(struct nodoVentanilla *buscada);
+void numPersonasAtendidas(struct listaVentanillas listaVentanilla);
+void eliminarVentanilla(struct listaVentanillas *listaVentanilla);
 
 //EMPIEZO MI CODIGO
 int main() {
@@ -80,6 +83,10 @@ int main() {
                 atender(listaVentanillas.primero, &listaVentanillas);
                 break;
             case 6:
+                eliminarVentanilla(&listaVentanillas);
+                break;
+            case 7:
+                numPersonasAtendidas(listaVentanillas);
                 break;
         }
     } while (opc != 0);
@@ -98,10 +105,11 @@ int menu()
         printf("\n4. Ponerse a la cola");
         printf("\n5. Atender a una persona");
         printf("\n6. Cerrar ventanilla");
+        printf("\n7. Contar numero de atendidos");
         printf("\n0. Salir");
         printf("\nIntroduce la opcion deseada... ");
         scanf("%d", &opc);
-    } while ((opc<0) || (opc>6));
+    } while ((opc<0) || (opc>7));
     return opc;
 }
 
@@ -166,8 +174,7 @@ void ponerseCola(struct nodoVentanilla *primero, struct listaVentanillas *listaV
 //EJERCICIO 2: ATENDER A UNA PERSONA
 void atender(struct nodoVentanilla *primero, struct listaVentanillas *listaVentanilla){
     int ventanillaBuscar=0;
-    int contador=0;
-    struct nodoVentanilla *recorre;
+    //int contador;
     printf("\nIntroduce la ventanilla que quieres atender: ");
     scanf("%d",&ventanillaBuscar);
     struct nodoVentanilla *buscada= buscarVentanilla(primero,ventanillaBuscar); //esto me da la ventanilla de la que quiero sacar su lista personas y atender al primero
@@ -175,10 +182,11 @@ void atender(struct nodoVentanilla *primero, struct listaVentanillas *listaVenta
     
     if(buscada==NULL){
         printf("\nNo se ha encontrado la ventanilla que quieres");
-    }else{
+    }else if(buscada->personas.primero!=NULL){
         printf("\nMe voy a eliminar primero");
         eliminarPrimero(buscada, listaVentanilla);
-        
+    }else{
+        printf("\nEn esa ventanilla no hay personas en cola");
     }
 }
 
@@ -281,7 +289,7 @@ void addNodoVentanilla(struct listaVentanillas *listaVentanillas) {
     }
     
     //2. relleno
-    printf("\n Introduce la informaciÛn del numero de la ventanilla: ");
+    printf("\n Introduce la el numero de la ventanilla: ");
     scanf("%d", &nuevo->informacion.numeroVentanilla);
     printf("\n Introduce la operacion de la ventanilla: ");fflush(stdin);
     fpurge(stdin);
@@ -291,6 +299,7 @@ void addNodoVentanilla(struct listaVentanillas *listaVentanillas) {
     scanf("%d", &numPersonas);
     //inicializar la lista de personas
     nuevo->personas.primero = nuevo->personas.ultimo = NULL;
+    nuevo->informacion.personasAtendidas=0;
     
     for (i=0;i<numPersonas;i++){
         addNodoPersona(&nuevo->personas);
@@ -357,21 +366,84 @@ void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *li
     
     //caso 1: que sea el unico
     if(buscada->personas.primero==buscada->personas.ultimo){
-        buscada->personas.primero=NULL;
-        buscada->personas.ultimo=NULL;
+        buscada->personas.primero=buscada->personas.ultimo=NULL;
+        
         
     //Caso 2: que sea el primero
-    }else if(buscada->personas.primero->anterior==NULL){
-        //respecto al antiguo primero
-        buscada->personas.primero->siguiente=NULL;
-        
-        //respecto al nuevo primero
-        buscada->personas.primero->siguiente = buscada->personas.primero; //Convierto el anterior siguiente al primero
-        buscada->personas.primero->anterior=NULL; //Su anterior es NULL
+    }else{
+        buscada->personas.primero->siguiente->anterior=NULL;
+        buscada->personas.primero=buscada->personas.primero->siguiente;
     }
+    (buscada->informacion.personasAtendidas)++;
+    
 
 }
 
 void mostrarAtendido(struct nodoVentanilla *buscada){
     printf("\nSe acaba de atender a : %s, con DNI: %s, en la ventanilla %d", buscada->personas.primero->informacion.nombre, buscada->personas.primero->informacion.dni, buscada->informacion.numeroVentanilla);
 }
+
+void eliminarVentanilla(struct listaVentanillas *listaVentanilla){
+    int numVentanillaBorrar;
+    struct nodoVentanilla *ventanillaBuscado;
+    printf("\nIntroduce el número de ventanilla que quieres cerrar: ");
+    scanf("%d",&numVentanillaBorrar);
+    ventanillaBuscado=buscarVentanilla(listaVentanilla->primero, numVentanillaBorrar);
+    
+    //eliminar a los usuarios de la ventanilla
+    while (ventanillaBuscado->personas.primero!=NULL) {
+        eliminarPrimero(ventanillaBuscado, listaVentanilla);
+    }
+    
+    //Casos de la ventanilla
+    
+    //Caso 1: la ventnailla es la unica
+    if(ventanillaBuscado->anterior==NULL && ventanillaBuscado->siguiente==NULL){
+        listaVentanilla->primero=NULL;
+        listaVentanilla->ultimo=NULL;
+        
+    //Caso 2: La ventanilla es la primera
+    }else if(ventanillaBuscado->anterior==NULL){
+        listaVentanilla->primero->siguiente=NULL;
+        listaVentanilla->primero->siguiente=listaVentanilla->primero;
+        listaVentanilla->primero->anterior=NULL;
+        
+    //Caso 3: LA ventanilla es la ultima
+    }else if(ventanillaBuscado->siguiente==NULL){
+        listaVentanilla->ultimo=ventanillaBuscado->anterior;
+        ventanillaBuscado->anterior->siguiente= listaVentanilla->ultimo;
+        listaVentanilla->ultimo->siguiente=NULL;
+    //Caso 4: es una ventanilla del medio
+    }else if(ventanillaBuscado->siguiente==NULL){
+        listaVentanilla->ultimo->anterior=listaVentanilla->ultimo;
+        listaVentanilla->ultimo->siguiente=NULL;
+        ventanillaBuscado->anterior=NULL;
+    
+        
+    }else{
+        ventanillaBuscado->siguiente->anterior=ventanillaBuscado->anterior;
+        ventanillaBuscado->anterior->siguiente=ventanillaBuscado->siguiente;
+        ventanillaBuscado->siguiente=NULL;
+        ventanillaBuscado->anterior=NULL;
+    }
+    //CAso 4: es la ventanilla del final
+    
+    free(ventanillaBuscado);
+}
+
+void numPersonasAtendidas(struct listaVentanillas listaVentanilla){
+    int numVentanilla;
+    printf("\nCual es la ventanilla que quieres consultar: ");
+    scanf("%d", &numVentanilla);
+    
+   struct nodoVentanilla *ventanilla= buscarVentanilla(listaVentanilla.primero, numVentanilla);
+    if(ventanilla==NULL){
+        printf("\nLa ventanilla que has indicado no existe o no se ha atentido a ninguna persona todavía");
+    }else{
+        printf("\nEl número de personas atendidas: %d",ventanilla->informacion.personasAtendidas );
+    }
+    
+}
+
+    
+
