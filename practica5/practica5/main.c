@@ -171,10 +171,12 @@ void atender(struct nodoVentanilla *primero, struct listaVentanillas *listaVenta
     printf("\nIntroduce la ventanilla que quieres atender: ");
     scanf("%d",&ventanillaBuscar);
     struct nodoVentanilla *buscada= buscarVentanilla(primero,ventanillaBuscar); //esto me da la ventanilla de la que quiero sacar su lista personas y atender al primero
+    printf("\nVuevo de buscar Ventanilla");
     
     if(buscada==NULL){
         printf("\nNo se ha encontrado la ventanilla que quieres");
     }else{
+        printf("\nMe voy a eliminar primero");
         eliminarPrimero(buscada, listaVentanilla);
         
     }
@@ -339,6 +341,7 @@ void addNodoPersona(struct listaPersonas *listaPersonas) {
 
 
 struct nodoVentanilla *buscarVentanilla(struct nodoVentanilla *primero, int numeroVentanillaBuscar){
+    printf("\nEntro en buscarVentanilla");
     struct nodoVentanilla *recorre = primero;
     while (recorre!=NULL && recorre->informacion.numeroVentanilla != numeroVentanillaBuscar) {
         recorre=recorre->siguiente;
