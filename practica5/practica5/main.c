@@ -55,6 +55,7 @@ void gestionarCambioVentanilla(struct nodoVentanilla *primero);
 void ponerseCola(struct nodoVentanilla *primero, struct listaVentanillas *listaVentanilla);
 void atender(struct nodoVentanilla *primero, struct listaVentanillas *listaVentanilla);
 void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *listaVentanilla);
+void mostrarAtendido(struct nodoVentanilla *buscada);
 
 //EMPIEZO MI CODIGO
 int main() {
@@ -73,6 +74,12 @@ int main() {
             case 3:visualizar(listaVentanillas.primero);
                 break;
             case 4:
+                ponerseCola(listaVentanillas.primero, &listaVentanillas);
+                break;
+            case 5:
+                atender(listaVentanillas.primero, &listaVentanillas);
+                break;
+            case 6:
                 break;
         }
     } while (opc != 0);
@@ -88,12 +95,18 @@ int menu()
         printf("\n1. Visualizar los numeros de ventanillas y el numero de personas a la cola");
         printf("\n2. Realizar un cambio de ventanilla");
         printf("\n3. Visualizar todo");
+        printf("\n4. Ponerse a la cola");
+        printf("\n5. Atender a una persona");
+        printf("\n6. Cerrar ventanilla");
         printf("\n0. Salir");
         printf("\nIntroduce la opcion deseada... ");
         scanf("%d", &opc);
-    } while ((opc<0) || (opc>3));
+    } while ((opc<0) || (opc>6));
     return opc;
 }
+
+
+
 void eliminar(struct listaPersonas *listaPersonas, struct nodoPersona *personaMover){
     struct nodoPersona *anterior, *siguiente;
     anterior = personaMover->anterior;
@@ -139,7 +152,6 @@ void addPersona(struct listaPersonas *listaPersonas,struct nodoPersona *personaA
 
 //EJERCICIO 1
 void ponerseCola(struct nodoVentanilla *primero, struct listaVentanillas *listaVentanilla){
-    struct nodoPersona *personaAñadir=NULL;
     int numeroVentanilla=0;
     printf("\nVamos a introducir el número ventanilla: ");
     scanf("%d",&numeroVentanilla);
@@ -190,7 +202,7 @@ void gestionarCambioVentanilla(struct nodoVentanilla *primero){
     //pido el dni
     printf("\n Introduce tu dni: ");fpurge(stdin);
     scanf("%s",dniPersonaCambiar);
-    personaCambiar = buscarPersona(ventanillaOrigen->personas.primero, dniPersonaCambiar);
+    //personaCambiar = buscarPersona(ventanillaOrigen->personas.primero, dniPersonaCambiar);
     if (personaCambiar == NULL){
         printf("\n No estas en la cola de esa ventanilla");
         printf("\n IMPOSIBLE el cambio");
@@ -337,7 +349,8 @@ struct nodoVentanilla *buscarVentanilla(struct nodoVentanilla *primero, int nume
 
 void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *listaVentanilla){
    //Siempre vamos a coger el primero entonces nos ahorramos el codigo para los que sean de en medio
-    
+    mostrarAtendido(buscada);
+
     
     //caso 1: que sea el unico
     if(buscada->personas.primero==buscada->personas.ultimo){
@@ -353,8 +366,9 @@ void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *li
         buscada->personas.primero->siguiente = buscada->personas.primero; //Convierto el anterior siguiente al primero
         buscada->personas.primero->anterior=NULL; //Su anterior es NULL
     }
-    
-    printf("\nSe acaba de atender a una persons");
 
-    //Caso 3: que sea el último
+}
+
+void mostrarAtendido(struct nodoVentanilla *buscada){
+    printf("\nSe acaba de atender a : %s, con DNI: %s, en la ventanilla %d", buscada->personas.primero->informacion.nombre, buscada->personas.primero->informacion.dni, buscada->informacion.numeroVentanilla);
 }
