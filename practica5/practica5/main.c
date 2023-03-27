@@ -10,6 +10,7 @@
 #include<string.h>
 
 //******    MIS STRUCTS ******
+
 struct infoPersona{
     char dni[9];
     char nombre[20];
@@ -59,6 +60,8 @@ void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *li
 void mostrarAtendido(struct nodoVentanilla *buscada);
 void numPersonasAtendidas(struct listaVentanillas listaVentanilla);
 void eliminarVentanilla(struct listaVentanillas *listaVentanilla);
+int contarPersonas(struct nodoPersona*primero);
+void visualizarVentanillasNumeroPersonas(struct nodoVentanilla *primero);
 
 //EMPIEZO MI CODIGO
 int main() {
@@ -71,6 +74,7 @@ int main() {
         switch (opc)
         {
             case 1:
+                visualizarVentanillasNumeroPersonas(listaVentanillas.primero);
                 break;
             case 2:gestionarCambioVentanilla(listaVentanillas.primero);
                 break;
@@ -112,7 +116,24 @@ int menu()
     } while ((opc<0) || (opc>7));
     return opc;
 }
+int contarPersonas(struct nodoPersona *primero){
+    struct nodoPersona *recorre=primero;
+    int contadorPersonas=0;
+    while(recorre!=NULL){
+        contadorPersonas++;
+        recorre=recorre->siguiente;
+    }
+    return contadorPersonas;
+}
 
+void visualizarVentanillasNumeroPersonas(struct nodoVentanilla *primero){
+    struct nodoVentanilla *recorre = primero;
+    
+    while ( recorre!=NULL) {
+        printf("\nVentanilla numero: %d\n\tNumero de personas a la cola: %d ",recorre->informacion.numeroVentanilla, contarPersonas(recorre->personas.primero));
+        recorre=recorre->siguiente;
+    }
+}
 
 
 void eliminar(struct listaPersonas *listaPersonas, struct nodoPersona *personaMover){
@@ -357,6 +378,15 @@ struct nodoVentanilla *buscarVentanilla(struct nodoVentanilla *primero, int nume
     }
     return recorre; //Aquí ya nos retorna la posición de la ventanilla
 }
+
+struct nodoPersona *buscarPersona(struct nodoPersona *primero, char dniBuscar[]){
+    struct  nodoPersona *buscado=primero;
+    while ( (buscado !=NULL) && (strcmp(buscado->informacion.dni, dniBuscar)!=0)) {
+        buscado = buscado->siguiente;
+    }
+    return buscado;
+}
+
 
 
 void eliminarPrimero(struct nodoVentanilla *buscada, struct listaVentanillas *listaVentanilla){
