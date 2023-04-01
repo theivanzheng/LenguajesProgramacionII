@@ -43,6 +43,7 @@ struct listaAlumnos{
 void addNodoAlumno(struct listaAlumnos *lista);
 void addNotaAlumno(struct listaAlumnos *lista);
 void showMediaAlumnos(struct listaAlumnos *lista);
+void eliminarNota(struct listaAlumnos *lista);
 
 //MIS FUNCIONES SECUNDARIAS
 int Menu(void);
@@ -61,7 +62,7 @@ int main(int argc, const char * argv[]) {
     int opt=0;
     struct listaAlumnos lista;
     crearListaDelistas(&lista);
-    printf("BIENVENIDO A LA PRACTICA 6");
+    printf("\nBIENVENIDO A LA PRACTICA 6");
     printf("\n--------------------------");
     do {
         opt=Menu();
@@ -91,6 +92,8 @@ int main(int argc, const char * argv[]) {
 void addNotaAlumno(struct listaAlumnos *lista){
     struct tipoNodoPersona *expedienteComprobar=checkExpediente (lista);
     struct asignatura *recorre;
+    printf("\n\n2. AÑADIR NOTA AL ALUMNO");
+    printf("\n-------------------------");
     if(expedienteComprobar==NULL){
         printf("\nEl alumno no está en la lista");
         return;
@@ -165,7 +168,7 @@ void addNodoAlumno(struct listaAlumnos *lista){
 
 void showMediaAlumnos(struct listaAlumnos *lista){
     struct tipoNodoPersona *recorre=lista->primero;
-    printf("\n3. MEDIA DE LOS ALUMNOS: ");
+    printf("\n\n3. MEDIA DE LOS ALUMNOS: ");
     printf("\n------------------------");
     if(lista->primero==NULL){
         printf("\nLa lista está vacía");
@@ -179,6 +182,25 @@ void showMediaAlumnos(struct listaAlumnos *lista){
  
 }
 
+void eliminarNota(struct listaAlumnos *lista){
+    printf("\n4. ELIMINAR NOTA ASIGNATURA");
+    printf("\n---------------------------");
+    struct tipoNodoPersona *persona =checkExpediente(lista);
+    struct asignatura *asignatura=NULL;
+    if(persona==NULL){
+        printf("\nEl expediente introducido no se encuentra en la lista");
+        return;
+    }
+    while (asignatura==NULL) {
+        printf("La asignatura escogida no está en la lista, prueba otra vez");
+        asignatura=checkAsignatura(lista, persona);
+    }
+    if(asignatura->fNota!=0){
+        asignatura->fNota=0;
+    }
+    
+}
+
 
 //CODIGO DE  FUNCIONES SECUNDARIAS
 int Menu(void){
@@ -187,7 +209,7 @@ int Menu(void){
         
         
         printf("\nMENU:"
-               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de todos los alumnos registrados \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
+               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de las asignaturas aprobadas de todos \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
         scanf("%d",&opt);
     }while (opt<0 || opt>6);
     return opt;
@@ -256,7 +278,6 @@ struct tipoNodoPersona *checkExpediente(struct listaAlumnos *lista){
         return recorre;
     }
     
-    
     while (strcmp(expediente, recorre->info.numexpediente)!=0) {
         recorre=recorre->siguiente;
     }
@@ -299,8 +320,10 @@ float calcularMediaAlumno(struct tipoNodoPersona *alumno){
     struct asignatura *recorre=alumno->listaAsignaturas.primero;
     
     while (recorre!=NULL) {
-        sumador=sumador + recorre->fNota;
-        contador++;
+        if(recorre->fNota >=5){
+            sumador=sumador + recorre->fNota;
+            contador++;
+        }
         recorre=recorre->siguiente;
     }
     media=sumador/contador;
