@@ -40,20 +40,21 @@ struct listaAlumnos{
 
 
 //MIS FUNCIONES PRINCIPALES
-void addAlumno(struct listaAlumnos *lista);
 void addNodoAlumno(struct listaAlumnos *lista);
 void addNotaAlumno(struct listaAlumnos *lista);
-void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas);
-struct tipoNodoPersona *checkNombre(char nombreAcomprobar[], struct listaAlumnos *lista);
+void showMediaAlumnos(struct listaAlumnos *lista);
 
 //MIS FUNCIONES SECUNDARIAS
 int Menu(void);
+void addAlumno(struct listaAlumnos *lista);
 void crearListaDelistas(struct listaAlumnos *listaAlumnos);
 struct tipoNodoPersona *checkExpediente( struct listaAlumnos *lista);
 void mostrarAsignaturas(struct tipoNodoPersona *alumno);
 struct asignatura *checkAsignatura(struct listaAlumnos *lista, struct tipoNodoPersona *personaAcomprobar);
 void mostrarTodoDeUnAlumno(struct listaAlumnos *listaAlumnos);
-
+void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas);
+struct tipoNodoPersona *checkNombre(char nombreAcomprobar[], struct listaAlumnos *lista);
+float calcularMediaAlumno(struct tipoNodoPersona *alumno);
 
 //MI MAIN
 int main(int argc, const char * argv[]) {
@@ -72,6 +73,7 @@ int main(int argc, const char * argv[]) {
                 addNotaAlumno(&lista);
                 break;
             case 3:
+                showMediaAlumnos(&lista);
                 break;
             case 4:
                 break;
@@ -161,6 +163,36 @@ void addNodoAlumno(struct listaAlumnos *lista){
     lista->ultimo = nuevo;
 }
 
+void showMediaAlumnos(struct listaAlumnos *lista){
+    struct tipoNodoPersona *recorre=lista->primero;
+    printf("\n3. MEDIA DE LOS ALUMNOS: ");
+    printf("\n------------------------");
+    if(lista->primero==NULL){
+        printf("\nLa lista está vacía");
+        return;
+    }else{
+        while (recorre!=NULL) {
+            printf("\n%s, media: %.2f",recorre->info.nombre,calcularMediaAlumno(recorre));
+            recorre=recorre->siguiente;
+        }
+    }
+ 
+}
+
+
+//CODIGO DE  FUNCIONES SECUNDARIAS
+int Menu(void){
+    int opt=0;
+    do{
+        
+        
+        printf("\nMENU:"
+               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de todos los alumnos registrados \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
+        scanf("%d",&opt);
+    }while (opt<0 || opt>6);
+    return opt;
+}
+
 void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas){
     struct asignatura *nuevo;
     
@@ -186,21 +218,6 @@ void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas){
     nuevo->siguiente = NULL;
     nuevo->anterior = listaAsignaturas->ultimo;
     listaAsignaturas->ultimo = nuevo;
-}
-
-
-
-//CODIGO DE  FUNCIONES SECUNDARIAS
-int Menu(void){
-    int opt=0;
-    do{
-        
-        
-        printf("\nMENU:"
-               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de todos los alumnos registrados \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
-        scanf("%d",&opt);
-    }while (opt<0 || opt>6);
-    return opt;
 }
 
 struct tipoNodoPersona *checkNombre(char nombreAcomprobar[], struct listaAlumnos *lista){
@@ -267,6 +284,7 @@ struct asignatura *checkAsignatura(struct listaAlumnos *lista, struct tipoNodoPe
     }
     return recorre;
 }
+
 void mostrarTodoDeUnAlumno(struct listaAlumnos *listaAlumnos){
     struct tipoNodoPersona *recorre=listaAlumnos->primero;
     printf("\nEL expediente de todos los alumnos: ");
@@ -274,4 +292,17 @@ void mostrarTodoDeUnAlumno(struct listaAlumnos *listaAlumnos){
         printf("\n\tExpediente: %s Nombre: %s",recorre->info.numexpediente, recorre->info.nombre);
         recorre=recorre->siguiente;
     }
+}
+
+float calcularMediaAlumno(struct tipoNodoPersona *alumno){
+    float contador=0,sumador=0,media=0;
+    struct asignatura *recorre=alumno->listaAsignaturas.primero;
+    
+    while (recorre!=NULL) {
+        sumador=sumador + recorre->fNota;
+        contador++;
+        recorre=recorre->siguiente;
+    }
+    media=sumador/contador;
+    return media;
 }
