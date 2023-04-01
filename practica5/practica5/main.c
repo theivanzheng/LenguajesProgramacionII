@@ -292,7 +292,7 @@ void crearListaDelistas(struct listaVentanillas *listaVentanillas) {
     
     for (i = 0;i < n; i++) {
         printf("\n Para la ventanilla %d",i+1);
-        addNodoVentanilla(listaVentanillas);
+        addNodoVentanilla(listaVentanillaslistaVentanillas);
 
     }
 }
@@ -350,10 +350,8 @@ void addNodoPersona(struct listaPersonas *listaPersonas) {
     
     //2.Relleno
     printf("\n DNI de la persona: ");fflush(stdin);
-    fpurge(stdin);
     scanf("%s", nuevo->informacion.dni);
     printf("\n Nombre de la persona: ");fflush(stdin);
-    fpurge(stdin);
     scanf("%s", nuevo->informacion.nombre);
     
     //3. Conecto

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 struct asignatura{
-    char asignatura[20];
+    char nombreAsignatura[20];
     float fNota;
     int convocatoria;
     struct asignatura *siguiente;
@@ -28,7 +28,7 @@ struct infoPersona{
 
 struct tipoNodoPersona{
     struct infoPersona info;
-    struct listaAsignaturas asignaturas;
+    struct listaAsignaturas listaAsignaturas;
     struct tipoNodoPersona *siguiente;
     struct tipoNodoPersona *anterior;
 };
@@ -43,12 +43,16 @@ struct listaAlumnos{
 void addAlumno(struct listaAlumnos *lista);
 void addNodoAlumno(struct listaAlumnos *lista);
 void addNotaAlumno(struct listaAlumnos *lista);
-void addNodoAsignaturas(struct listaAsignaturas *listaAsginaturas);
+void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas);
 struct tipoNodoPersona *checkNombre(char nombreAcomprobar[], struct listaAlumnos *lista);
 
 //MIS FUNCIONES SECUNDARIAS
 int Menu(void);
 void crearListaDelistas(struct listaAlumnos *listaAlumnos);
+struct tipoNodoPersona *checkExpediente( struct listaAlumnos *lista);
+void mostrarAsignaturas(struct tipoNodoPersona *alumno);
+struct asignatura *checkAsignatura(struct listaAlumnos *lista, struct tipoNodoPersona *personaAcomprobar);
+void mostrarTodoDeUnAlumno(struct listaAlumnos *listaAlumnos);
 
 
 //MI MAIN
@@ -70,6 +74,7 @@ int main(int argc, const char * argv[]) {
             case 4:
                 break;
             case 5:
+                mostrarTodoDeUnAlumno(&lista);
                 break;
         }
         
@@ -80,21 +85,24 @@ int main(int argc, const char * argv[]) {
 
 //CODIGO DE  FUNCIONES PRINCIPALES
 void addNotaAlumno(struct listaAlumnos *lista){
-    char nombre[20];
-    printf("\nIntroduce el nombre del alumno: ");
-    fpurge(stdin);
-    scanf("%[^\n]",nombre);
-    
-    if(  checkNombre(nombre, lista)==NULL){
+    struct tipoNodoPersona *expedienteComprobar=checkExpediente (lista);
+    if(  expedienteComprobar==NULL){
         printf("\nEl alumno no está en la lista");
         return;
     }else{
-       
+        mostrarAsignaturas(expedienteComprobar);
+        struct asignatura *asignaturaElegida=checkAsignatura(lista, expedienteComprobar);
+        
+        if(asignaturaElegida==NULL){
+            printf("La asignatura elegida no coincide con ninguna de las anteriores");
+        }else{
+            printf("\nIntroduce la nota que ha obtenido en %s: ",asignaturaElegida->nombreAsignatura);
+            scanf("%f",&asignaturaElegida->fNota);
+            (asignaturaElegida->convocatoria)++;
+        }
     }
 }
-void addAlumno(struct listaAlumnos *lista){
-    
-}
+
 void addNodoAlumno(struct listaAlumnos *lista){
     printf("\n1.- AÑADIR UN REGISTRO DE UN ALUMNO");
     printf("\n-----------------------------------");
@@ -108,24 +116,24 @@ void addNodoAlumno(struct listaAlumnos *lista){
         }
     //2.- Relleno la información
     printf("\nIntroduce el nombre del alumno: ");
-    fpurge(stdin);
+    fflush(stdin);
     scanf("%[^\n]",nuevo->info.nombre);
     checkNombre(nuevo->info.nombre, lista);
     if( checkNombre(nuevo->info.nombre, lista) == NULL){
         //printf("/nEl usuario no se encuentra en la lista, se pocede a insertar en la lista");
         printf("\nIntroduce el expediente del alumno: ");
-        fpurge(stdin);
+        fflush(stdin);
         scanf("%[^\n]",nuevo->info.numexpediente);
         printf("\nIntroduce la titulacion del alumno: ");
-        fpurge(stdin);
+        fflush(stdin);
         scanf("%[^\n]",nuevo->info.titulacion);
         
         //inicializo la lista de asignaturas
-        printf("\nCuantas asignaturas tiene %s", nuevo->info.nombre);
+        printf("\nCuantas asignaturas tiene %s: ", nuevo->info.nombre);
         scanf("%d", &numAsignaturas);
-        nuevo->asignaturas.primero=nuevo->asignaturas.ultimo=NULL;
+        nuevo->listaAsignaturas.primero=nuevo->listaAsignaturas.ultimo=NULL;
         for (int i=0; i<numAsignaturas; i++) {
-            add
+            addNodoAsignaturas(&nuevo->listaAsignaturas);
         }
     }else{
         printf("\nEl usuario ya está en la lista");
@@ -143,15 +151,25 @@ void addNodoAlumno(struct listaAlumnos *lista){
     lista->ultimo = nuevo;
 }
 
-void addNodoAsignaturas(struct listaAsignaturas *listaAsginaturas){
+void addNodoAsignaturas(struct listaAsignaturas *listaAsignaturas){
     struct asignatura *nuevo;
     
     //1.- Reservo memoria
-    nuevo=(struct asignatura *)malloc(sizeof(struct asignatura));
+    nuevo=(struct asignatura*)malloc(sizeof(struct asignatura));
     if(nuevo==NULL){
         printf("\nERROR DE MEMORIA, NO SE HA PODDIDO CREAR ASIGNATURA");
     }
+    //2.- Relleno la información
+    printf("Introduce el nombre de la asignatura: ");  fflush(stdin);
+    scanf("%[^\n]", nuevo->nombreAsignatura);
+    printf("Introduce la nota obtenida: ");
+    scanf("%f", &nuevo->fNota);
+    printf("Introduce la convocatoria: ");
+    scanf("%d", &nuevo->convocatoria);
+    
 }
+
+
 
 //CODIGO DE  FUNCIONES SECUNDARIAS
 int Menu(void){
@@ -160,9 +178,9 @@ int Menu(void){
         
         
         printf("\nMENU:"
-               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de todos los alumnos registrados \n\t4. Eliminar nota asignatura\n\t5. Salir del programa\nSelecciona una opción: ");
+               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de todos los alumnos registrados \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
         scanf("%d",&opt);
-    }while (opt<0 || opt>5);
+    }while (opt<0 || opt>6);
     return opt;
 }
 
@@ -170,7 +188,7 @@ struct tipoNodoPersona *checkNombre(char nombreAcomprobar[], struct listaAlumnos
     struct tipoNodoPersona *recorre=lista->primero;
     
     if(recorre==NULL){
-        printf("\nLa lista está vacía");
+       // printf("\nLa lista está vacía");
         return recorre;
     }else{
         while (recorre!=NULL && (strcmp(recorre->info.nombre , nombreAcomprobar)!=0)){
@@ -192,3 +210,42 @@ void crearListaDelistas(struct listaAlumnos *listaAlumnos){
     }
 }
 
+struct tipoNodoPersona *checkExpediente(struct listaAlumnos *lista){
+    char expediente[6];
+    struct tipoNodoPersona *recorre=lista->primero;
+    printf("\nIntroduce el expediente del alumno: ");
+    scanf("%s",expediente);
+    
+    while (strcmp(expediente, recorre->info.numexpediente)!=0) {
+        recorre=recorre->siguiente;
+    }
+    return recorre;
+}
+
+void mostrarAsignaturas(struct tipoNodoPersona *alumno){
+    struct asignatura *recorre = alumno->listaAsignaturas.primero;
+    printf("\nLas asignaturas de %s",alumno->info.nombre);
+    while (recorre->siguiente!=NULL) {
+        printf("\n\t%s",recorre->nombreAsignatura);
+    }
+}
+
+struct asignatura *checkAsignatura(struct listaAlumnos *lista, struct tipoNodoPersona *personaAcomprobar){
+    struct asignatura *recorre=personaAcomprobar->listaAsignaturas.primero;
+    char asignaturaAcomprobar[20];
+    printf("\Escoge una asignatura: ");
+    scanf("%[^\n]",asignaturaAcomprobar);
+    
+    while (recorre!=NULL&&(strcmp(recorre->nombreAsignatura, asignaturaAcomprobar)!=0)) {
+        recorre=recorre->siguiente;
+    }
+    return recorre;
+}
+void mostrarTodoDeUnAlumno(struct listaAlumnos *listaAlumnos){
+    struct tipoNodoPersona *recorre=listaAlumnos->primero;
+    printf("\nEL expediente de todos los alumnos: ");
+    while (recorre!=NULL) {
+        printf("\n\tExpediente: %s Nombre: %s",recorre->info.numexpediente, recorre->info.nombre);
+        recorre=recorre->siguiente;
+    }
+}
