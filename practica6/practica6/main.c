@@ -15,6 +15,7 @@ struct asignatura{
     struct asignatura *siguiente;
     struct asignatura *anterior;
 };
+
 struct listaAsignaturas{
     struct asignatura *primero;
     struct asignatura *ultimo;
@@ -104,6 +105,8 @@ void addNotaAlumno(struct listaAlumnos *lista){
         
         if(asignaturaElegida==NULL){
             printf("La asignatura elegida no coincide con ninguna de las anteriores");
+        }else if(asignaturaElegida->fNota>=5){
+            printf("\nLa asignatura ya ha sido aprobada con un %f",asignaturaElegida->fNota);
         }else{
             printf("\nIntroduce la nota que ha obtenido en %s: ",asignaturaElegida->nombreAsignatura);
             scanf("%f",&asignaturaElegida->fNota);
@@ -197,6 +200,7 @@ void eliminarNota(struct listaAlumnos *lista){
     }
     if(asignatura->fNota!=0){
         asignatura->fNota=0;
+        printf("\nLa nota se ha modificado con éxito");
     }
     
 }
