@@ -78,13 +78,17 @@ int main(int argc, const char * argv[]) {
                 showMediaAlumnos(&lista);
                 break;
             case 4:
+                eliminarNota(&lista);
                 break;
             case 5:
                 mostrarTodoDeUnAlumno(&lista);
                 break;
+            case 6:
+                printf("\nHas salido del programa");
+                break;
         }
         
-    } while (opt!=0);
+    } while (opt!=6);
 
     return 0;
 }
@@ -113,10 +117,10 @@ void addNotaAlumno(struct listaAlumnos *lista){
             (asignaturaElegida->convocatoria)++;
         }
     }
-    printf("\nSe ha añadido la nota con exito");
+
     printf("\n\nLas notas actualizadas: ");
     while (recorre!=NULL) {
-        printf("\n\t%s COnvocatoria: %d Nota: %.2f",recorre->nombreAsignatura,recorre->convocatoria,recorre->fNota);
+        printf("\n\t%s Convocatoria: %d Nota: %.2f",recorre->nombreAsignatura,recorre->convocatoria,recorre->fNota);
         recorre=recorre->siguiente;
     }
 }
@@ -178,7 +182,9 @@ void showMediaAlumnos(struct listaAlumnos *lista){
         return;
     }else{
         while (recorre!=NULL) {
-            printf("\n%s, media: %.2f",recorre->info.nombre,calcularMediaAlumno(recorre));
+            if(calcularMediaAlumno(recorre)>= 0){
+                printf("\n%s, media: %.2f",recorre->info.nombre,calcularMediaAlumno(recorre));
+            }
             recorre=recorre->siguiente;
         }
     }
@@ -194,9 +200,13 @@ void eliminarNota(struct listaAlumnos *lista){
         printf("\nEl expediente introducido no se encuentra en la lista");
         return;
     }
+    mostrarAsignaturas(persona);
+
     while (asignatura==NULL) {
-        printf("La asignatura escogida no está en la lista, prueba otra vez");
         asignatura=checkAsignatura(lista, persona);
+        if(asignatura==NULL){
+            printf("La asignatura escogida no está en la lista, prueba otra vez");
+        }
     }
     if(asignatura->fNota!=0){
         asignatura->fNota=0;
@@ -213,7 +223,7 @@ int Menu(void){
         
         
         printf("\nMENU:"
-               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de las asignaturas aprobadas de todos \n\t4. Eliminar nota asignatura\n\t5. Mostrar todo\n\t6. Salir del programa\nSelecciona una opción: ");
+               "\n\t1. Añadir un registro de alumno \n\t2. Añadir nota al alumno \n\t3. Mostrar nota media de las asignaturas aprobadas de todos \n\t4. Eliminar nota asignatura\n\t5. Mostrar expediente y nombre de todos\n\t6. Salir del programa\nSelecciona una opción: ");
         scanf("%d",&opt);
     }while (opt<0 || opt>6);
     return opt;
