@@ -30,13 +30,14 @@ struct listaApps{
 //MIS FUNCIONES
 int menu(void);
 void useApp(struct listaApps *listaApp);
+void addTiempoUso(struct listaApps *listaApp, char appName[]);
 
 //FUNCIONES AUXILIARES
 struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]);
 void crearApp (struct listaApps *listaApps, char appName[]);
 
 int main(int argc, const char * argv[]) {
-    
+    char appName[10];
     int opt;
     
     struct listaApps listaApps;
@@ -50,6 +51,12 @@ int main(int argc, const char * argv[]) {
             case 1:
                 useApp(&listaApps);
                 break;
+            case 2:
+                printf("\n2.- AÑADIR TIEMPO DE USO");
+                printf("\nIntroduce el nombre de la app: ");
+                fflush(stdin);
+                scanf("%[^\n]",appName);
+                addTiempoUso(&listaApps, appName);
                 
             default:
                 printf("\nHAS SALIDO DEL PROGRAMA");
@@ -61,15 +68,13 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-
-
-
+// ****** DESARROLLO DE MIS FUNCIONES *****
 int menu(void){
     int opc=-1;
     
     do {
-        printf("\n--------------------------------------------------------");
-        printf("\nMENU:");
+        
+        printf("\n\n******MENU******");
         printf("\n1. Usar una app");
         printf("\n2. Actualizar tiempo de uso");
         printf("\n3. Desinstalar una aplicación");
@@ -77,7 +82,7 @@ int menu(void){
         printf("\n0. Salir del programa");
         printf("\n-->Escoge una opción: ");
         scanf("%d", &opc);
-        printf("\n--------------------------------------------------------");
+        
         if(opc <0|| opc>4){
             printf("\nLA OPCIÓN ESCOGIDA NO EXISTE, PRUEBA OTRA VEZ");
         }
@@ -138,4 +143,20 @@ void crearApp (struct listaApps *listaApps, char appName[]){
     listaApps->ultimo=nuevo;
     
     printf("\nSe ha añadido la aplicación con éxito");
+}
+
+void addTiempoUso(struct listaApps *listaApp, char appName[]){
+    int segundos;
+    struct tipoNodoApp *check =checkAppName(*listaApp, appName);
+    
+    if(check ==NULL){
+        printf("\nLa aplicación introducida no existe");
+        return;
+    }else{
+        printf("Introduce el tiempo que le quieres añadir a la aplicación en segundos");
+        scanf("%d",&segundos);
+        check->info.timeUsed += segundos;
+        printf("\nSe ha actualizado el tiempo de uso de %s a: %d segundos",check->info.nombre, check->info.timeUsed);
+    }
+    
 }
