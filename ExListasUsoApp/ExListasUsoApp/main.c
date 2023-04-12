@@ -31,11 +31,13 @@ struct listaApps{
 int menu(void);
 void useApp(struct listaApps *listaApp);
 void addTiempoUso(struct listaApps *listaApp, char appName[]);
+void eliminarApp(struct listaApps *listaApp, char appName[]);
 
 //FUNCIONES AUXILIARES
 struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]);
 void crearApp (struct listaApps *listaApps, char appName[]);
 void vistaGeneral(struct listaApps listaApp);
+void vistaEspecifica(struct listaApps listaApp, struct tipoNodoApp app);
 
 int main(int argc, const char * argv[]) {
     char appName[10];
@@ -59,6 +61,13 @@ int main(int argc, const char * argv[]) {
                 scanf("%[^\n]",appName);
                 addTiempoUso(&listaApps, appName);
                 break;
+            case 3:
+                printf("\n3.- DESINSTALAR UNA APLICACIÓN");
+                printf("\nIntroduce el nombre de la app: ");
+                fflush(stdin);
+                scanf("%[^\n]",appName);
+                eliminarApp(&listaApps, appName);
+                break;
             case  5:
                 vistaGeneral(listaApps);
             default:
@@ -77,7 +86,7 @@ int menu(void){
     
     do {
         
-        printf("\n\n******MENU******");
+        printf("\n\n****** MENU ******");
         printf("\n1. Usar una app");
         printf("\n2. Actualizar tiempo de uso");
         printf("\n3. Desinstalar una aplicación");
@@ -121,7 +130,7 @@ struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]){
             recorre=recorre->siguiente;
         }
     }
-    printf("\nRECORRE CHECK SE HA QUEDADO EN %s", recorre->info.nombre);
+    //printf("\nRECORRE CHECK SE HA QUEDADO EN %s", recorre->info.nombre);
     return recorre;
 }
 
@@ -174,4 +183,50 @@ void vistaGeneral(struct listaApps listaApp){
         printf("\n\t Num veces usada: %d", recorre->info.numUsada);
         recorre=recorre->siguiente;
     }
+}
+
+void vistaEspecifica(struct listaApps listaApp, struct tipoNodoApp app){
+        printf("\n %s", app.info.nombre);
+        printf("\n\t Tiempo de uso: %d sec", app.info.timeUsed);
+        printf("\n\t Num veces usada: %d", app.info.numUsada);
+}
+
+
+void eliminarApp(struct listaApps *listaApp, char appName[]){
+    struct tipoNodoApp *check =checkAppName(*listaApp, appName);
+    
+    if(check ==NULL){
+        printf("\nLa app que has elegido no está en la lista");
+        return;
+    }else{
+        vistaEspecifica(*listaApp, *check);
+        //que sea el unico de la lista
+        if(check->anterior==NULL && check->siguiente==NULL){
+            printf("\nEs el único de la lista");
+            listaApp->primero=NULL;
+            listaApp->ultimo=NULL;
+          
+        //que sea el primero de la lista
+        }else if (check->anterior==NULL){
+            printf("\nEs el primero de la lista");
+            listaApp->primero=check->siguiente;
+            check->siguiente->anterior=NULL;
+            check->siguiente=NULL;
+        //Es el ultimo de la lista
+        }else if(check->siguiente==NULL){
+            printf("\nEs el ultimo de la lista");
+            listaApp->ultimo=check->anterior;
+            check->anterior->siguiente=NULL;
+            check->anterior=NULL;
+        //Está en la mitad
+        }else{
+            check->siguiente->anterior=check->anterior;
+            check->anterior->siguiente=check->siguiente;
+            check->siguiente=NULL;
+            check->anterior=NULL;
+        }
+        free(check);
+        printf("\nSe ha eliminado correctamente");
+    }
+
 }
