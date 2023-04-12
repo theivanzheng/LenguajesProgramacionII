@@ -35,6 +35,7 @@ void addTiempoUso(struct listaApps *listaApp, char appName[]);
 //FUNCIONES AUXILIARES
 struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]);
 void crearApp (struct listaApps *listaApps, char appName[]);
+void vistaGeneral(struct listaApps listaApp);
 
 int main(int argc, const char * argv[]) {
     char appName[10];
@@ -57,7 +58,9 @@ int main(int argc, const char * argv[]) {
                 fflush(stdin);
                 scanf("%[^\n]",appName);
                 addTiempoUso(&listaApps, appName);
-                
+                break;
+            case  5:
+                vistaGeneral(listaApps);
             default:
                 printf("\nHAS SALIDO DEL PROGRAMA");
                 break;
@@ -70,7 +73,7 @@ int main(int argc, const char * argv[]) {
 
 // ****** DESARROLLO DE MIS FUNCIONES *****
 int menu(void){
-    int opc=-1;
+    int opc=0;
     
     do {
         
@@ -79,15 +82,15 @@ int menu(void){
         printf("\n2. Actualizar tiempo de uso");
         printf("\n3. Desinstalar una aplicación");
         printf("\n4. Obtener un listado de aplicaciones ordenada por uso");
+        printf("\n5. Obtener una vista general de todo");
         printf("\n0. Salir del programa");
         printf("\n-->Escoge una opción: ");
         scanf("%d", &opc);
         
-        if(opc <0|| opc>4){
+        if(opc <0|| opc>5){
             printf("\nLA OPCIÓN ESCOGIDA NO EXISTE, PRUEBA OTRA VEZ");
         }
-    }while (opc<0|| opc>4);
-    printf("%d", opc);
+    }while (opc<0|| opc>5);
     return opc;
 }
 
@@ -112,12 +115,13 @@ struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]){
     struct tipoNodoApp *recorre= listaApp.primero;
     
     while (recorre!=NULL) {
-        if(recorre->info.nombre==listaApp.primero->info.nombre){
+        if(strcmp(recorre->info.nombre, appName)==0){
             return recorre;
         }else{
             recorre=recorre->siguiente;
         }
     }
+    printf("\nRECORRE CHECK SE HA QUEDADO EN %s", recorre->info.nombre);
     return recorre;
 }
 
@@ -149,7 +153,7 @@ void addTiempoUso(struct listaApps *listaApp, char appName[]){
     int segundos;
     struct tipoNodoApp *check =checkAppName(*listaApp, appName);
     
-    if(check ==NULL){
+    if(check == NULL){
         printf("\nLa aplicación introducida no existe");
         return;
     }else{
@@ -159,4 +163,15 @@ void addTiempoUso(struct listaApps *listaApp, char appName[]){
         printf("\nSe ha actualizado el tiempo de uso de %s a: %d segundos",check->info.nombre, check->info.timeUsed);
     }
     
+}
+
+void vistaGeneral(struct listaApps listaApp){
+    struct tipoNodoApp *recorre = listaApp.primero;
+    
+    while (recorre!=NULL) {
+        printf("\n %s", recorre->info.nombre);
+        printf("\n\t Tiempo de uso: %d sec", recorre->info.timeUsed);
+        printf("\n\t Num veces usada: %d", recorre->info.numUsada);
+        recorre=recorre->siguiente;
+    }
 }
