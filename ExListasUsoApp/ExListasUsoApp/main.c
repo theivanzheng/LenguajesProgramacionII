@@ -32,6 +32,7 @@ int menu(void);
 void useApp(struct listaApps *listaApp);
 void addTiempoUso(struct listaApps *listaApp, char appName[]);
 void eliminarApp(struct listaApps *listaApp, char appName[]);
+void mostrarOrdenadosPorUso(struct listaApps *listaApp);
 
 //FUNCIONES AUXILIARES
 struct tipoNodoApp *checkAppName(struct listaApps listaApp, char appName[]);
@@ -67,6 +68,10 @@ int main(int argc, const char * argv[]) {
                 fflush(stdin);
                 scanf("%[^\n]",appName);
                 eliminarApp(&listaApps, appName);
+                break;
+            case 4:
+                printf("\n4.- MOSTRAR ORDENADO");
+                mostrarOrdenadosPorUso(&listaApps);
                 break;
             case  5:
                 vistaGeneral(listaApps);
@@ -229,4 +234,29 @@ void eliminarApp(struct listaApps *listaApp, char appName[]){
         printf("\nSe ha eliminado correctamente");
     }
 
+}
+
+void mostrarOrdenadosPorUso(struct listaApps *listaApp){
+    struct tipoNodoApp *i, *j;
+    struct infoApp temp;
+    
+    if (listaApp->primero == NULL){
+        printf("\nNo hay aplicaciones instaladas");
+        return;
+    }
+    
+    for (i = listaApp->primero; i != NULL; i = i->siguiente) {
+        for (j = i->siguiente; j != NULL; j = j->siguiente) {
+            if (i->info.numUsada < j->info.numUsada) {
+                temp = i->info;
+                i->info = j->info;
+                j->info = temp;
+            }
+        }
+    }
+    
+    printf("\nAplicaciones ordenadas por número de veces usadas:");
+    for (struct tipoNodoApp *p = listaApp->primero; p != NULL; p = p->siguiente) {
+        vistaEspecifica(*listaApp, *p);
+    }
 }
