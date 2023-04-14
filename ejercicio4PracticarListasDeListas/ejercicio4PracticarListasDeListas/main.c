@@ -67,8 +67,10 @@ int main(int argc, const char * argv[]) {
     struct listaVentanillas lista;
     lista.primero=NULL;
     lista.ultimo=NULL;
-    crearListadeListas(&lista);
     int opc;
+
+    printf("*** Bienvenido a Ejercicio4PracticarListasdeListas! *** \n");
+    crearListadeListas(&lista);
     
     do{
         opc=menu();
@@ -99,7 +101,7 @@ int main(int argc, const char * argv[]) {
 void visualizarNumVentanillas(struct listaVentanillas listaVentanillas){
     struct nodoVentanilla *recorre=listaVentanillas.primero;
     struct nodoPersona *recorrePersonas;
-    int numPersonas=0;
+    int numPersonas;
     
     if(recorre==NULL){
         printf("\nLa lista está vacía");
@@ -107,6 +109,7 @@ void visualizarNumVentanillas(struct listaVentanillas listaVentanillas){
     }
     
     while (recorre!=NULL) {
+        numPersonas=0;
         printf("\nNumero de Ventanilla: %d",recorre->infoVentanilla.numVentanilla);
         recorrePersonas=recorre->infoVentanilla.listaPersonas.primero;
         
@@ -128,6 +131,7 @@ void realizarCambioVentanilla(struct listaVentanillas *listaVentanillas){
     struct nodoVentanilla *ventanillaDestino;
     struct nodoPersona *personaCambiar;
     
+    printf("\n\nLas ventanillas disponibles: ");
     visualizarNumVentanillas(*listaVentanillas);
     printf("\n\tA qué ventanilla quieres acceder: ");
     scanf("%d",&numVentanillaOrigen);
@@ -136,6 +140,7 @@ void realizarCambioVentanilla(struct listaVentanillas *listaVentanillas){
             printf("\n\tLa ventanilla escogida no se encuentra en la lista");
             return;
         }
+    showPersonas(ventanillaOrigen->infoVentanilla.listaPersonas);
     printf("\nQué DNI quieres cambiar de ventanilla: "); fflush(stdin);
     scanf("%s",dniPersonaCambiar);
     personaCambiar = checkDNI(ventanillaOrigen, dniPersonaCambiar);
@@ -143,7 +148,7 @@ void realizarCambioVentanilla(struct listaVentanillas *listaVentanillas){
             printf("\nEl dni escogido no se encuentra en la lista.");
             return;
         }
-    printf("\n\tA qué ventanilla quieres moverte: ");
+    printf("\n\n\tA qué ventanilla quieres moverte: ");
     scanf("%d",&numVentanillaDestino);
     ventanillaDestino = checkVentanilla(*listaVentanillas, numVentanillaDestino);
         if(ventanillaDestino==NULL){
@@ -153,6 +158,8 @@ void realizarCambioVentanilla(struct listaVentanillas *listaVentanillas){
     eliminarDeVentanilla(&ventanillaOrigen->infoVentanilla.listaPersonas, personaCambiar);
     addPersonaAotraVentanilla(&ventanillaDestino->infoVentanilla.listaPersonas, personaCambiar);
     printf("\nEl cambio se ha realizado con éxito");
+    printf("\nLas ventanillas actuaizadas:");
+    showLista(*listaVentanillas);
 }
 
 
@@ -258,6 +265,7 @@ void showPersonas(struct listaPersonas listaPersonas){
     printf("\nLista de personas: ");
     while (recorre!=NULL) {
         printf("\n\tNombre: %s DNI: %s",recorre->infoPersona.nombre, recorre->infoPersona.dni);
+        recorre=recorre->siguiente;
     }
 }
 
@@ -315,5 +323,19 @@ void eliminarDeVentanilla(struct listaPersonas *listapersonas, struct nodoPerson
 }
 
 void showLista(struct listaVentanillas listaVentanilla){
+    struct nodoVentanilla *recorre = listaVentanilla.primero;
     
+    while (recorre!=NULL) {
+        printf("\nVentanilla: %d",recorre->infoVentanilla.numVentanilla);
+        showListaPersonas(recorre->infoVentanilla.listaPersonas);
+        recorre=recorre->siguiente;
+    }
+}
+
+void showListaPersonas(struct listaPersonas listaPersonas){
+    struct nodoPersona *recorre = listaPersonas.primero;
+    while (recorre!=NULL) {
+        printf("\n\tNombre: %s DNI: %s",recorre->infoPersona.nombre, recorre->infoPersona.dni);
+        recorre=recorre->siguiente;
+    }
 }
