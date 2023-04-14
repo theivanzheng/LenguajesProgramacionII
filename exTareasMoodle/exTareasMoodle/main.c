@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 //*** MIS STRUCTS ***
 struct tipoFecha{
     int dia;
@@ -44,11 +44,17 @@ struct tipoListaAlumno{
 };
 
 //*** MIS FUNCIONES PRINCIPALES ***
+void subirTareaMoodle(struct tipoListaAlumno *listaAlumno);
 
 //*** MIS FUNCIONES SECUNDARIAS ***
 void crearListadeListas(struct tipoListaAlumno lista);
 void crearAlumno(struct tipoListaAlumno *listaAlumno);
 int menu(void);
+void showAllAlumnos(struct tipoListaAlumno *listaAlumno);
+struct nodoAlumno *checkLoginAlumno(struct tipoListaAlumno *listaAlumno, char loginAlumno[]);
+int escogerTipoTarea(void);
+void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea);
+
 
 int main(int argc, const char * argv[]) {
     struct tipoListaAlumno listaAlumnos;
@@ -61,6 +67,7 @@ int main(int argc, const char * argv[]) {
         
         switch (opc) {
             case 1:
+                printf("\n1. Subir tarea a Moodle");
                 
                 break;
                 
@@ -74,18 +81,29 @@ int main(int argc, const char * argv[]) {
 
 
 //*** MIS FUNCIONES PRINCIPALES ***
-void crearListadeListas(struct tipoListaAlumno lista){
-    int numAlumnos,i;
-    
-    printf("\n\tCuantos alumnos quieres crear?: ");
-    scanf("%d",&numAlumnos);
-    
-    for (i=0; i<numAlumnos; i++) {
-        crearAlumno(&lista);
+
+void subirTareaMoodle(struct tipoListaAlumno *listaAlumno){
+    char loginAlumno[20];
+    int tipoTarea;
+    if(listaAlumno->primero==NULL){
+        printf("\nLa lista de alumnos está vacía");
+        return;
     }
     
+    showAllAlumnos(listaAlumno);
+    printf("\nEscoge qué alumno quieres que suba una tarea: "); fflush(stdin);
+    scanf("%s",loginAlumno);
+    
+    //Compruebo que el alumno existe
+    struct nodoAlumno *alumno = checkLoginAlumno(listaAlumno, loginAlumno);
+    if(alumno==NULL){
+        printf("\nEl alumno introducido no está en la lista");
+        return;
+    }
+    tipoTarea= escogerTipoTarea();
+    addNodoTarea(alumno,tipoTarea);
+    printf("\nTarea añadida con éxito");
 }
-
 
 //*** MIS FUNCIONES SECUNDARIAS ***
 int menu(void){
@@ -105,6 +123,19 @@ int menu(void){
     
     return opc;
 }
+
+void crearListadeListas(struct tipoListaAlumno lista){
+    int numAlumnos,i;
+    
+    printf("\n\tCuantos alumnos quieres crear?: ");
+    scanf("%d",&numAlumnos);
+    
+    for (i=0; i<numAlumnos; i++) {
+        crearAlumno(&lista);
+    }
+    
+}
+
 
 void crearAlumno(struct tipoListaAlumno *listaAlumno){
     struct nodoAlumno *nuevo;
@@ -129,4 +160,78 @@ void crearAlumno(struct tipoListaAlumno *listaAlumno){
     nuevo->siguiente=NULL;
     listaAlumno->ultimo->siguiente=nuevo;
     nuevo->anterior=listaAlumno->ultimo;
+}
+
+void showAllAlumnos(struct tipoListaAlumno *listaAlumno){
+    struct nodoAlumno *recorre = listaAlumno->primero;
+    printf("\nTodos los alumnos: ");
+    while (recorre!=NULL) {
+        printf("\n\t%s",recorre->info.login);
+        recorre=recorre->siguiente;
+    }
+}
+
+struct nodoAlumno *checkLoginAlumno(struct tipoListaAlumno *listaAlumno, char loginAlumno[]){
+    struct nodoAlumno *recorre = listaAlumno->primero;
+    while (recorre!=NULL) {
+        if(strcmp(loginAlumno, recorre->info.login)==0){
+            return recorre;
+        }
+        recorre=recorre->siguiente;
+    }
+    return recorre;
+}
+
+int escogerTipoTarea(void){
+    int opc;
+    do{
+        printf("\nEscoge el tipo de tarea");
+        printf("\n\t1. Obligatoria");
+        printf("\n\t2. Voluntaria");
+        scanf("%d",&opc);
+        if(opc<1 || opc>2){
+            printf("\n*** La opción esocgido no es valida *** ");
+        }
+    }while(opc<1 || opc>2);
+    
+    return opc;
+}
+
+void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
+    struct nodoTarea *nuevo;
+    
+    //1.- reservo memoria
+    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
+    if(nuevo==NULL){
+        printf("*** ERROR DE MEMORIA ***");
+    }
+    
+    //2.- Relleno la informacion
+    printf("\n\tEscribe el nombre de la tarea: ");
+    scanf("%[^\n]",nuevo->tituloTarea);
+    printf("\n\t\tIntroduce el día de entrega: ");
+    scanf("%d", &nuevo->fecha.dia);
+    printf("\n\t\tIntroduce el mes de entrega: ");
+    scanf("%d", &nuevo->fecha.mes);
+    printf("\n\t\tIntroduce el anio de entrega: ");
+    scanf("%d", &nuevo->fecha.anio);
+    
+    struct listaTarea *listaTarea=NULL;
+    
+     if(tipoTarea==1){
+         listaTarea= alumno->info.voluntarias;
+     }else if(tipoTarea ==2){
+         listaTarea= alumno->info.obligatorias;
+     }
+    
+    //3.- Conecto con la lista
+    if(listaTarea->primero==NULL){                   //Es el primero de la lista
+        listaTarea->primero=nuevo;
+    }else{
+        listaTarea->ultima->siguiente=nuevo;        //Está en otra posición
+    }
+    //------igual para todas las situaciones
+    nuevo->siguiente=NULL;
+    nuevo->anterior=listaTarea->ultima;
+    listaTarea->ultima=nuevo;
 }
