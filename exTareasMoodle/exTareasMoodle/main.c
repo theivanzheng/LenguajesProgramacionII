@@ -45,21 +45,25 @@ struct tipoListaAlumno{
 
 //*** MIS FUNCIONES PRINCIPALES ***
 void subirTareaMoodle(struct tipoListaAlumno *listaAlumno);
+void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo);
 
 //*** MIS FUNCIONES SECUNDARIAS ***
-void crearListadeListas(struct tipoListaAlumno lista);
+void crearListadeListas(struct tipoListaAlumno *lista);
+void crearListaTareas(struct listaTarea *listaTarea);
 void crearAlumno(struct tipoListaAlumno *listaAlumno);
 int menu(void);
 void showAllAlumnos(struct tipoListaAlumno *listaAlumno);
 struct nodoAlumno *checkLoginAlumno(struct tipoListaAlumno *listaAlumno, char loginAlumno[]);
 int escogerTipoTarea(void);
 void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea);
+void addNodoAlumno(struct tipoListaAlumno *listaAlumno);
 
 
 int main(int argc, const char * argv[]) {
     struct tipoListaAlumno listaAlumnos;
     int opc;
-    crearAlumno(&listaAlumnos);
+    printf("*** BIENVENIDO AL REGISTRO DE TAREAS DE MOODLE ***");
+    crearListadeListas(&listaAlumnos);
     
     printf("BIENVENIDO A ExTareasMoodle\n");
     do{
@@ -68,9 +72,15 @@ int main(int argc, const char * argv[]) {
         switch (opc) {
             case 1:
                 printf("\n1. Subir tarea a Moodle");
-                
+                subirTareaMoodle(&listaAlumnos);
                 break;
-                
+            case 2:
+                printf("\n2. Visualizar tareas de un alumno");
+                visualizarTareasAlumno(&listaAlumnos);
+                break;
+            case 3:
+                printf("\n3. Mostrar listado de alumnos");
+                showAllAlumnos(&listaAlumnos);
             default:
                 break;
         }
@@ -105,10 +115,34 @@ void subirTareaMoodle(struct tipoListaAlumno *listaAlumno){
     printf("\nTarea añadida con éxito");
 }
 
+void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo){
+    char loginCHosen[20];
+    struct nodoAlumno *alumno;
+    struct nodoTarea *recorre;
+    
+    showAllAlumnos(listaAlumnmo);
+    printf("\nEscoge de qué alumno quieres ver las tareas: ");
+    scanf("%s",loginCHosen);
+    alumno = checkLoginAlumno(listaAlumnmo, loginCHosen);
+    if(alumno==NULL){
+        printf("\nEl login del alumno escogido no está en la lista");
+        return;
+    }
+    
+    //ahora voy a recorrer las dos listas
+    printf("\nLas tareas obligatorias");
+    recorre=alumno->info.obligatorias->primero;
+    while (recorre!=NULL) {
+        printf("\nNombre de la tarea: %s", recorre->tituloTarea);
+        printf("\nFecha de la tarea: %d/ %d/ %d", recorre->fecha.dia,recorre->fecha.mes, recorre->fecha.anio);
+            }
+    
+    
+}
 //*** MIS FUNCIONES SECUNDARIAS ***
 int menu(void){
     int opc;
-    
+     
     do{
         printf("\n*** MENU ****");
         printf("\n\t1. Subir tarea a Moodle");
@@ -124,21 +158,22 @@ int menu(void){
     return opc;
 }
 
-void crearListadeListas(struct tipoListaAlumno lista){
+void crearListadeListas(struct tipoListaAlumno *lista){
     int numAlumnos,i;
     
+    //Inicializo mi lista
+    lista->primero=lista->ultimo=NULL;
     printf("\n\tCuantos alumnos quieres crear?: ");
     scanf("%d",&numAlumnos);
     
     for (i=0; i<numAlumnos; i++) {
-        crearAlumno(&lista);
+        crearAlumno(lista);
     }
-    
 }
-
 
 void crearAlumno(struct tipoListaAlumno *listaAlumno){
     struct nodoAlumno *nuevo;
+    
     //1.Reservo espacio
     nuevo= (struct nodoAlumno *)malloc(sizeof(struct nodoAlumno *));
         if(nuevo==NULL){
@@ -147,9 +182,9 @@ void crearAlumno(struct tipoListaAlumno *listaAlumno){
     //2.- Relleno la informacion
     printf("\n\tCual es el login del alumno: ");
     scanf("%s",nuevo->info.login);
-    nuevo->info.obligatorias->primero = nuevo->info.obligatorias->ultima=NULL;
-    nuevo->info.voluntarias->primero  = nuevo->info.voluntarias->ultima=NULL;
     
+    crearListaTareas(nuevo->info.obligatorias);
+
     //3.- Conecto con la lista
     if(listaAlumno->primero==NULL){     //Es el primero
         listaAlumno->primero=nuevo;
@@ -158,8 +193,8 @@ void crearAlumno(struct tipoListaAlumno *listaAlumno){
     }
     //----para todos los casos
     nuevo->siguiente=NULL;
-    listaAlumno->ultimo->siguiente=nuevo;
     nuevo->anterior=listaAlumno->ultimo;
+    listaAlumno->ultimo=nuevo;
 }
 
 void showAllAlumnos(struct tipoListaAlumno *listaAlumno){
@@ -207,7 +242,7 @@ void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
     }
     
     //2.- Relleno la informacion
-    printf("\n\tEscribe el nombre de la tarea: ");
+    printf("\n\tEscribe el nombre de la tarea: "); fflush(stdin);
     scanf("%[^\n]",nuevo->tituloTarea);
     printf("\n\t\tIntroduce el día de entrega: ");
     scanf("%d", &nuevo->fecha.dia);
@@ -225,6 +260,31 @@ void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
      }
     
     //3.- Conecto con la lista
+    if(listaTarea->primero==NULL){                   //Es el primero de la lista
+        listaTarea->primero=nuevo;
+    }else{
+        listaTarea->ultima->siguiente=nuevo;        //Está en otra posición
+    }
+    //------igual para todas las situaciones
+    nuevo->siguiente=NULL;
+    nuevo->anterior=listaTarea->ultima;
+    listaTarea->ultima=nuevo;
+}
+
+void crearListaTareas(struct listaTarea *listaTarea){
+    struct nodoTarea *nuevo;
+    
+    //1.- reservo memoria
+    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
+    if(nuevo==NULL){
+        printf("*** ERROR DE MEMORIA ***");
+    }
+    
+    //2.- Relleno la informacion
+
+    
+    //3.- Conecto con la lista
+
     if(listaTarea->primero==NULL){                   //Es el primero de la lista
         listaTarea->primero=nuevo;
     }else{
