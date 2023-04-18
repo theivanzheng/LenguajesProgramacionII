@@ -46,6 +46,7 @@ struct tipoListaAlumno{
 //*** MIS FUNCIONES PRINCIPALES ***
 void subirTareaMoodle(struct tipoListaAlumno *listaAlumno);
 void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo);
+void eliminarTareasObligatoriasAlumno(struct tipoListaAlumno *listaAlumnmo);
 
 //*** MIS FUNCIONES SECUNDARIAS ***
 void crearListadeListas(struct tipoListaAlumno *lista);
@@ -57,6 +58,7 @@ struct nodoAlumno *checkLoginAlumno(struct tipoListaAlumno *listaAlumno, char lo
 int escogerTipoTarea(void);
 void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea);
 void addNodoAlumno(struct tipoListaAlumno *listaAlumno);
+
 
 
 int main(int argc, const char * argv[]) {
@@ -81,6 +83,11 @@ int main(int argc, const char * argv[]) {
             case 3:
                 printf("\n3. Mostrar listado de alumnos");
                 showAllAlumnos(&listaAlumnos);
+                break;
+            case 4:
+                printf("\n4. ELIMINAR TAREAS DE UN ALUMNO");
+                eliminarTareasObligatoriasAlumno(&listaAlumnos);
+                break;
             default:
                 break;
         }
@@ -130,9 +137,6 @@ void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo){
     }
     
     //ahora voy a recorrer las dos listas
-    printf("\nLas tareas obligatorias");
-    recorre=alumno->info.obligatorias->primero;
-    
     if(alumno->info.obligatorias->primero ==NULL){
         printf("\n*** No tiene tareas obligatorias ***");
     }else{
@@ -157,10 +161,37 @@ void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo){
             printf("\n");
             recorre=recorre->siguiente;
         }
+        
     }
-    
-   
-    
+}
+
+void eliminarTareasObligatoriasAlumno(struct tipoListaAlumno *listaAlumnmo){
+    char loginAlumno[20];
+
+    printf("\nIntroduce el login del alumno: ");
+    scanf("%s", loginAlumno);
+
+    // Busca el alumno por su login
+    struct nodoAlumno *alumno = checkLoginAlumno(listaAlumnmo, loginAlumno);
+
+    if(alumno == NULL){
+        printf("\nNo se ha encontrado el usuario");
+        return;
+    }
+
+    // Libera la memoria de las tareas obligatorias
+    struct nodoTarea *actual = alumno->info.obligatorias->primero;
+    while(actual != NULL){
+        struct nodoTarea *siguiente = actual->siguiente;
+        free(actual);
+        actual = siguiente;
+    }
+
+    // Actualiza el puntero a la lista de tareas obligatorias
+    alumno->info.obligatorias->primero = NULL;
+    alumno->info.obligatorias->ultima = NULL;
+
+    printf("\nSe han borrado las tareas obligatorias con éxito");
 }
 //*** MIS FUNCIONES SECUNDARIAS ***
 int menu(void){
@@ -340,5 +371,6 @@ void crearListaTareas(struct listaTarea *listaTarea){
     //------igual para todas las situaciones
     
     nuevo->siguiente=NULL;
+    listaTarea->ultima=nuevo;
     
 }
