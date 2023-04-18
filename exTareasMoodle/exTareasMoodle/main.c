@@ -304,73 +304,53 @@ int escogerTipoTarea(void){
 
 void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
     struct nodoTarea *nuevo;
-    struct listaTarea *listaTarea;
+        struct listaTarea *listaTarea;
 
-    if (tipoTarea == 1) {
-           listaTarea = alumno->info.obligatorias;
-       } else if (tipoTarea == 2) {
-           listaTarea = alumno->info.voluntarias;
-       } else {
-           printf("\n*** Tipo de tarea no válido ***");
-           return;
-       }
-    
-    //1.- reservo memoria
-    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
-    if(nuevo==NULL){
-        printf("*** ERROR DE MEMORIA ***");
-    }
-    
-    //2.- Relleno la informacion
-    printf("\n\tEscribe el nombre de la tarea: "); fflush(stdin);
-    scanf("%[^\n]",nuevo->tituloTarea);
-    printf("\n\t\tIntroduce el día de entrega: ");
-    scanf("%d", &nuevo->fecha.dia);
-    printf("\n\t\tIntroduce el mes de entrega: ");
-    scanf("%d", &nuevo->fecha.mes);
-    printf("\n\t\tIntroduce el anio de entrega: ");
-    scanf("%d", &nuevo->fecha.anio);
-    
-    
-    //3.- Conecto con la lista
-    if (listaTarea->primero == NULL) {
-           //Es el primero de la lista
-           listaTarea->primero = nuevo;
-           listaTarea->ultima = nuevo;
-       } else {
-           //Está en otra posición
-           nuevo->anterior = listaTarea->ultima;
-           listaTarea->ultima->siguiente = nuevo;
-           listaTarea->ultima = nuevo;
-       }
-       //------igual para todas las situaciones
-       nuevo->siguiente = NULL;
-   }
+        if (tipoTarea == 1) {
+               listaTarea = alumno->info.obligatorias;
+           } else if (tipoTarea == 2) {
+               listaTarea = alumno->info.voluntarias;
+           } else {
+               printf("\n*** Tipo de tarea no válido ***");
+               return;
+           }
+        
+        //1.- reservo memoria
+        nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
+        if(nuevo==NULL){
+            printf("*** ERROR DE MEMORIA ***");
+        }
+        
+        //2.- Relleno la informacion
+        printf("\n\tEscribe el nombre de la tarea: "); fflush(stdin);
+        scanf("%[^\n]",nuevo->tituloTarea);
+        printf("\n\t\tIntroduce el día de entrega: ");
+        scanf("%d", &nuevo->fecha.dia);
+        printf("\n\t\tIntroduce el mes de entrega: ");
+        scanf("%d", &nuevo->fecha.mes);
+        printf("\n\t\tIntroduce el anio de entrega: ");
+        scanf("%d", &nuevo->fecha.anio);
+        
+        //3.- Conecto con la lista
+        if (listaTarea->primero == NULL) {
+               //Es el primero de la lista
+               listaTarea->primero = nuevo;
+               listaTarea->ultima = nuevo;
+           } else {
+               //Está en otra posición
+               nuevo->anterior = listaTarea->ultima;
+               listaTarea->ultima->siguiente = nuevo;
+               listaTarea->ultima = nuevo;
+           }
+           //------igual para todas las situaciones
+           nuevo->siguiente = NULL;
+}
+
 
 void crearListaTareas(struct listaTarea *listaTarea){
-    struct nodoTarea *nuevo;
-    
-    //1.- reservo memoria
-    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea ));
-    if(nuevo==NULL){
-        printf("*** ERROR DE MEMORIA ***");
-    }
-    
-    //2.- Relleno la informacion
-
-    
-    //3.- Conecto con la lista
-
-    if(listaTarea->primero==NULL){                   //Es el primero de la lista
-        listaTarea->primero=nuevo;
-        listaTarea->ultima=nuevo;
-    }else{
-        listaTarea->ultima->siguiente=nuevo;        //Está en otra posición
-        nuevo->anterior=listaTarea->ultima;
-    }
-    //------igual para todas las situaciones
-    
-    nuevo->siguiente=NULL;
-    listaTarea->ultima=nuevo;
-    
+        listaTarea->primero = NULL;
+        listaTarea->ultima = NULL;
 }
+
+    
+
