@@ -62,7 +62,7 @@ void addNodoAlumno(struct tipoListaAlumno *listaAlumno);
 int main(int argc, const char * argv[]) {
     struct tipoListaAlumno listaAlumnos;
     int opc;
-    printf("*** BIENVENIDO AL REGISTRO DE TAREAS DE MOODLE ***");
+    printf("\n*** BIENVENIDO AL REGISTRO DE TAREAS DE MOODLE ***");
     crearListadeListas(&listaAlumnos);
     
     printf("BIENVENIDO A ExTareasMoodle\n");
@@ -132,11 +132,34 @@ void visualizarTareasAlumno(struct tipoListaAlumno *listaAlumnmo){
     //ahora voy a recorrer las dos listas
     printf("\nLas tareas obligatorias");
     recorre=alumno->info.obligatorias->primero;
-    while (recorre!=NULL) {
-        printf("\nNombre de la tarea: %s", recorre->tituloTarea);
-        printf("\nFecha de la tarea: %d/ %d/ %d", recorre->fecha.dia,recorre->fecha.mes, recorre->fecha.anio);
-            }
     
+    if(alumno->info.obligatorias->primero ==NULL){
+        printf("\n*** No tiene tareas obligatorias ***");
+    }else{
+        printf("\nLas tareas obligatorias");
+        recorre=alumno->info.obligatorias->primero;
+        while (recorre!=NULL) {
+            printf("\n\t\tNombre de la tarea: %s", recorre->tituloTarea);
+            printf("\n\t\tFecha de la tarea: %d/ %d/ %d", recorre->fecha.dia,recorre->fecha.mes, recorre->fecha.anio);
+            printf("\n");
+            recorre=recorre->siguiente;
+        }
+    }
+   
+    if(alumno->info.voluntarias->primero ==NULL){
+        printf("\n*** No tiene tareas voluntarias ***");
+    }else{
+        printf("\nLas tareas voluntarias");
+        recorre=alumno->info.voluntarias->primero;
+        while (recorre!=NULL) {
+            printf("\n\t\tNombre de la tarea: %s", recorre->tituloTarea);
+            printf("\n\t\tFecha de la tarea: %d/ %d/ %d", recorre->fecha.dia,recorre->fecha.mes, recorre->fecha.anio);
+            printf("\n");
+            recorre=recorre->siguiente;
+        }
+    }
+    
+   
     
 }
 //*** MIS FUNCIONES SECUNDARIAS ***
@@ -175,15 +198,31 @@ void crearAlumno(struct tipoListaAlumno *listaAlumno){
     struct nodoAlumno *nuevo;
     
     //1.Reservo espacio
-    nuevo= (struct nodoAlumno *)malloc(sizeof(struct nodoAlumno *));
+    nuevo= (struct nodoAlumno *)malloc(sizeof(struct nodoAlumno ));
         if(nuevo==NULL){
             printf("\n*** ERROR DE MEMORIA ***");
         }
     //2.- Relleno la informacion
-    printf("\n\tCual es el login del alumno: ");
-    scanf("%s",nuevo->info.login);
+    do{
+        printf("\n\tCual es el login del alumno: ");
+        scanf("%s",nuevo->info.login);
+        
+        if(checkLoginAlumno(listaAlumno, nuevo->info.login)!=NULL){
+            printf("\n\tEl alumno con ese login ya existe, vuelve a intentarlo");
+        
+        }
+        
+    }while (checkLoginAlumno(listaAlumno, nuevo->info.login)!=NULL);
+    
+    nuevo->info.obligatorias = (struct listaTarea*) malloc(sizeof(struct listaTarea));
+    nuevo->info.voluntarias = (struct listaTarea*) malloc(sizeof(struct listaTarea));
+
     
     crearListaTareas(nuevo->info.obligatorias);
+    crearListaTareas(nuevo->info.voluntarias);
+    
+    
+
 
     //3.- Conecto con la lista
     if(listaAlumno->primero==NULL){     //Es el primero
@@ -234,6 +273,16 @@ int escogerTipoTarea(void){
 
 void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
     struct nodoTarea *nuevo;
+    struct listaTarea *listaTarea;
+
+    if (tipoTarea == 1) {
+           listaTarea = alumno->info.obligatorias;
+       } else if (tipoTarea == 2) {
+           listaTarea = alumno->info.voluntarias;
+       } else {
+           printf("\n*** Tipo de tarea no válido ***");
+           return;
+       }
     
     //1.- reservo memoria
     nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
@@ -251,31 +300,27 @@ void addNodoTarea(struct nodoAlumno *alumno, int tipoTarea){
     printf("\n\t\tIntroduce el anio de entrega: ");
     scanf("%d", &nuevo->fecha.anio);
     
-    struct listaTarea *listaTarea=NULL;
-    
-     if(tipoTarea==1){
-         listaTarea= alumno->info.voluntarias;
-     }else if(tipoTarea ==2){
-         listaTarea= alumno->info.obligatorias;
-     }
     
     //3.- Conecto con la lista
-    if(listaTarea->primero==NULL){                   //Es el primero de la lista
-        listaTarea->primero=nuevo;
-    }else{
-        listaTarea->ultima->siguiente=nuevo;        //Está en otra posición
-    }
-    //------igual para todas las situaciones
-    nuevo->siguiente=NULL;
-    nuevo->anterior=listaTarea->ultima;
-    listaTarea->ultima=nuevo;
-}
+    if (listaTarea->primero == NULL) {
+           //Es el primero de la lista
+           listaTarea->primero = nuevo;
+           listaTarea->ultima = nuevo;
+       } else {
+           //Está en otra posición
+           nuevo->anterior = listaTarea->ultima;
+           listaTarea->ultima->siguiente = nuevo;
+           listaTarea->ultima = nuevo;
+       }
+       //------igual para todas las situaciones
+       nuevo->siguiente = NULL;
+   }
 
 void crearListaTareas(struct listaTarea *listaTarea){
     struct nodoTarea *nuevo;
     
     //1.- reservo memoria
-    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea *));
+    nuevo = (struct nodoTarea *)malloc(sizeof(struct nodoTarea ));
     if(nuevo==NULL){
         printf("*** ERROR DE MEMORIA ***");
     }
@@ -287,11 +332,13 @@ void crearListaTareas(struct listaTarea *listaTarea){
 
     if(listaTarea->primero==NULL){                   //Es el primero de la lista
         listaTarea->primero=nuevo;
+        listaTarea->ultima=nuevo;
     }else{
         listaTarea->ultima->siguiente=nuevo;        //Está en otra posición
+        nuevo->anterior=listaTarea->ultima;
     }
     //------igual para todas las situaciones
+    
     nuevo->siguiente=NULL;
-    nuevo->anterior=listaTarea->ultima;
-    listaTarea->ultima=nuevo;
+    
 }
