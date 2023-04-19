@@ -1,0 +1,3 @@
+/Users/administrador/CLionProjects/LenguajesProgram/practica1G3/cmake-build-debug/CMakeFiles/practica1G3.dir
+/Users/administrador/CLionProjects/LenguajesProgram/practica1G3/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/administrador/CLionProjects/LenguajesProgram/practica1G3/cmake-build-debug/CMakeFiles/rebuild_cache.dir

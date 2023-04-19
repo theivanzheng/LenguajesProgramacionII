@@ -252,8 +252,6 @@ void crearAlumno(struct tipoListaAlumno *listaAlumno){
     crearListaTareas(nuevo->info.obligatorias);
     crearListaTareas(nuevo->info.voluntarias);
     
-    
-
 
     //3.- Conecto con la lista
     if(listaAlumno->primero==NULL){     //Es el primero

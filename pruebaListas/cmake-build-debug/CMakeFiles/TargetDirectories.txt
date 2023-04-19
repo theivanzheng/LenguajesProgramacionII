@@ -1,0 +1,3 @@
+/Users/administrador/CLionProjects/LenguajesProgram/pruebaListas/cmake-build-debug/CMakeFiles/pruebaListas.dir
+/Users/administrador/CLionProjects/LenguajesProgram/pruebaListas/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/administrador/CLionProjects/LenguajesProgram/pruebaListas/cmake-build-debug/CMakeFiles/rebuild_cache.dir
