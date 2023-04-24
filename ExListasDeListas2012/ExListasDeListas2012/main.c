@@ -48,7 +48,7 @@ void showAlumno(struct listaAlumnos *listaAlumnos, struct nodoAlumno alumno);
 struct nodoAsignaturas * checkAsignatura(struct nodoAlumno *alumno, char asignatura[]);
 void eliminarAsignaturasBucleAlumnos(struct listaAlumnos *listaAlumnos);
 void showAlumnoAsignaturas(struct listaAlumnos *listaAlumnos, struct nodoAlumno *alumno);
-
+struct nodoAlumno *buscarOrdenado(struct nodoAlumno *primero, int expediente);
 
 int main(int argc, const char * argv[]) {
     int opt;
@@ -93,17 +93,31 @@ int main(int argc, const char * argv[]) {
 
 
 //*** MIS FUNCIONES PRINCIPALES ***
+
+struct nodoAlumno *buscarOrdenado(struct nodoAlumno *primero, int expediente){
+    struct nodoAlumno *recorre=primero;
+    
+    while ((recorre!=NULL) && (expediente<recorre->expediente)){
+        recorre=recorre->siguiente;
+    }
+    return recorre; //devuelve un puntero que localiza lo que busco o un puntero que localiza el sitio donde debería colocarse (siguiente)
+
+}
+
 void addAlumno(struct listaAlumnos *listaAlumnos){
     int expediente;
-    struct nodoAlumno *alumno;
-    printf("\nIntroduce el expediente: ");
+    struct nodoAlumno *alumno, *nuevo;
+    struct nodoAlumno *siguiente, *anterior;
+    
+    printf("\n\tIntroduce el expediente: ");
     scanf("%d",&expediente);
+    siguiente=buscarOrdenado(listaAlumnos->primero, expediente);    //aquí me da
+    
     alumno=checkExpediente(listaAlumnos, expediente);
     if(alumno!=NULL){
-        printf("\nUn alumno con el mismo expediente ya está en la lista");
+        printf("\n\tUn alumno con el mismo expediente ya está en la lista");
     }else{
         //1.- Reservo espacio
-        struct nodoAlumno *nuevo;
         nuevo=(struct nodoAlumno*)malloc(sizeof(struct nodoAlumno));
         if(nuevo==NULL){
             printf("\nERROR DE MEMORIA");
@@ -111,9 +125,9 @@ void addAlumno(struct listaAlumnos *listaAlumnos){
         }
         //2.- relleno informacion
         nuevo->expediente=expediente;
-        printf("\n\tIntroduce el nombre del alumno"); fpurge(stdin);
+        printf("\n\tIntroduce el nombre del alumno: "); fpurge(stdin);
         scanf("%s",nuevo->nombre);
-        printf("\n\tIntroduce el apellido del alumno"); fpurge(stdin);
+        printf("\n\tIntroduce el apellido del alumno: "); fpurge(stdin);
         scanf("%s",nuevo->apellidos);
         
         //3.- Enalzo con la lsita
@@ -129,6 +143,7 @@ void addAlumno(struct listaAlumnos *listaAlumnos){
         
     }
 }
+
 
 void addAsignatura(struct listaAlumnos *listaAlumnos){
     int expediente;
@@ -293,3 +308,4 @@ void showAlumnoAsignaturas(struct listaAlumnos *listaAlumnos, struct nodoAlumno 
         recorre=recorre->siguiente;
     }
 }
+
